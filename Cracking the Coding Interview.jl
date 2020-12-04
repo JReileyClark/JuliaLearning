@@ -82,17 +82,127 @@ stringsub = "%20"
 
 #string() concatenates strings
 
-function subfunc(string, subchar,subreplace,truelength)
+function subfunc(mystring, subchar,subreplace,truelength)
     returnstring = ""
     for i in 1:truelength
-        if string[i] == subchar
+        println(mystring[i])
+        if mystring[i] == subchar
             returnstring = string(returnstring,subreplace)
         else
-            returnstring = string(returnstring, string[i])
+            returnstring = string(returnstring, mystring[i])
         end
         
     end
     return returnstring
 end
 
-println(subfunc(string2,' ',stringsub,truelength ))
+test = subfunc(string2,' ',stringsub,truelength )
+
+println(test," :" , length(test))
+# returns "Mr%20John%20Smith :17"
+
+# Problem 4
+# PALINDROME PERMUTATION: Given a string, write a function to check if it is a permutation of a palindrome.
+
+
+# Some interesting properties of palindromes. They are symmetric about a pivot, which is partition line if the length of the sting is even, or a letter if the length of the string is odd.
+# So an odd length string would have an even number of each character except the for one, which would be odd.
+# An even length string would have and even number of each character.
+
+function removeWhitespace(string)
+    return filter(x -> !isspace(x),string)
+end
+
+function palindromePermutationDetector(string)
+    string = removeWhitespace(string)
+    countdict = charcount(string)
+    oddcount = count(i -> isodd(i),values(countdict))
+    println("String Length: ",length(string))
+    println("Even Count: " ,oddcount)
+    println(keys(countdict), length(keys(countdict)))
+    if oddcount > 1
+        return println("This is NOT a permutation of a palindrome")
+        
+    else
+        return println("This is a permutation of a palindrome")
+    end
+end
+
+palindromePermutationDetector("atcocta")
+
+#?count()
+
+
+
+# PROBLEM 5
+# ONE AWAY: there are three types of edits that can be performed on strings: Insert a character
+# remove a character, or replace a character. Given two strings, write a function to check if they are only at most one edit away.
+
+# Ok basically I need see if there is a length difference, or if there is a difference in the characters
+# Then I can keep a running counter of the edits
+
+# Basically my approach will be to iterate through each of the strings and compare an element deleted version to the other. If the element deleted versions match in length - 1 occurances
+# then the two strings are only one edit away.
+
+str_p5 = "this is a test"
+str_p5_2 = "this iz a test"
+str_p5_3 = "this is a tes"
+str_pg_4 = "this is a tesst"
+function stringSplice(string1::String, splice_index)
+    return (string1[1:splice_index-1],string(string1[splice_index]), string1[splice_index+1:end])
+end
+
+function checkinsert(longstr,shortstr)
+    insertcounter = 0
+    for i in 1:length(longstr)
+        #println(join(stringSplice( longstr, i)[[1,3]]), " : ", shortstr)
+        #println(join(stringSplice( longstr, i)[[1,3]]) == shortstr)
+        if join(stringSplice( longstr, i)[[1,3]]) == shortstr
+            insertcounter+=1
+        end
+    end
+    println(insertcounter)
+    return insertcounter
+end
+
+
+function checkreplace(longstr, shortstr)
+    replacecount = 0
+    for i in 1:length(shortstr)
+       if join(stringSplice(longstr,i)[[1,3]]) == join(stringSplice(shortstr,i)[[1,3]])
+            replacecount += 1
+       end
+    end
+    return replacecount
+end
+
+
+function stringEditCompare(string1::String, string2::String)
+    if length(string2) > length(string1)
+
+        stringEditCompare(string2, string1)
+    end
+    if abs(length(string1) - length(string2)) > 1
+        println("There have been more than one 'add' edits")
+        prinln("$string1 : $string2")
+        return false
+    end
+    if checkinsert(string1, string2) != 1
+        println("There has been more than one 'insert'")
+        println("$string1 : $string2")
+        return false
+    end
+
+    if checkreplace(string1, string2) != 1
+        println("There has been more than one 'replace'")
+        println("$string1 : $string2")
+        
+    end
+
+end
+
+TESTLIST = [("pale","ple", true), ("pales","pale", true),("pale", "bale", true), ("pale", "bae", false)]
+
+for row in TESTLIST
+    stringEditCompare(row[1],row[2])
+end
